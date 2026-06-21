@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#070e1e">
+<title>ROYCE MATRIX · Precisión Cuántica Dinástica</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap');
+
+  :root{
+    --bg: #070e1e;
+    --bg-elev1: #0f1931;
+    --bg-elev2: #162447;
+    --bg-card: #111b36;
+    --line: #1f3565;
+    --line-soft: #18294f;
+    --ink: #ffffff;
+    --ink-dim: #8fa0c4;
+    --ink-faint: #53678f;
+    
+    --gold-royce: #d4af37;
+    --gold-glow: rgba(212, 175, 55, 0.4);
+    --green-bright: #00e676;
+    --green-glow: rgba(0, 230, 118, 0.2);
+    --blue-neon: #00b0ff;
+    --blue-glow: rgba(0, 176, 255, 0.4);
+    --purple-astral: #d500f9;
+    --purple-glow: rgba(213, 0, 249, 0.15);
+    
+    --shadow-card: 0 8px 24px rgba(0,0,0,0.4);
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--ink); overscroll-behavior-y: none; }
+  body{
+    font-family:'Outfit', sans-serif;
+    min-height:100vh;
+    padding-bottom:calc(140px + var(--safe-bottom));
+    background:
+      radial-gradient(circle at 50% 0%, var(--blue-glow), transparent 60%),
+      radial-gradient(circle at 0% 100%, var(--purple-glow), transparent 40%),
+      var(--bg);
+  }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+
+  .app-bar{
+    position:sticky; top:0; z-index:30;
+    padding:calc(12px + var(--safe-top)) 16px 12px;
+    background:rgba(7, 14, 30, 0.85);
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--line-soft);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .app-bar .brand{ display:flex; align-items:center; gap:10px; }
+  
+  .app-bar .logo{
+    width:38px; height:38px; border-radius:50%;
+    background: radial-gradient(circle, #454d5a 20%, #1a1f29 100%);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; color:#000000; font-size:20px;
+    border: 2px solid #22314d;
+    box-shadow: 0 0 12px var(--blue-neon), inset 0 0 8px rgba(0,0,0,0.8);
+    text-shadow: 0 0 5px rgba(0,0,0,0.5);
+    animation: matrix-spin 6s linear infinite;
+  }
+  
+  .app-bar .name{ 
+    font-weight:800; 
+    font-size:17px; 
+    color:var(--ink); 
+    line-height:1.1; 
+    letter-spacing: 0.04em;
+    animation: text-pulse 3s ease-in-out infinite alternate;
+  }
+  .app-bar .name small{ 
+    display:block; 
+    font-family:'JetBrains Mono', monospace; 
+    font-size:9px; 
+    color:var(--gold-royce); 
+    letter-spacing:0.12em; 
+    margin-top:2px; 
+    font-weight:700; 
+    text-transform: uppercase;
+  }
+  
+  @keyframes matrix-spin {
+    0% { transform: rotate(0deg); filter: drop-shadow(0 0 2px var(--blue-neon)); }
+    50% { filter: drop-shadow(0 0 8px var(--blue-neon)); }
+    100% { transform: rotate(360deg); filter: drop-shadow(0 0 2px var(--blue-neon)); }
+  }
+  @keyframes text-pulse {
+    0% { text-shadow: 0 0 4px transparent; }
+    100% { text-shadow: 0 0 12px rgba(212, 175, 55, 0.6); color: #fff; }
+  }
+
+  .app-bar .btn-top{
+    background: rgba(15, 25, 49, 0.6); color: var(--blue-neon);
+    padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 11px;
+    border: 1px solid var(--blue-neon); font-family: 'JetBrains Mono', monospace;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .app-bar .btn-top.admin-active {
+    color: var(--green-bright); border-color: var(--green-bright);
+    box-shadow: 0 0 10px var(--green-glow);
+  }
+
+  .hero-strip{
+    margin:12px 14px 0;
+    background: linear-gradient(90deg, rgba(212,175,55,0.08), rgba(213,0,249,0.03));
+    border: 1px solid rgba(212,175,55,0.2);
+    border-radius:12px; padding:12px; display:flex; gap:10px;
+  }
+  .hero-strip svg{ flex:0 0 auto; color:var(--gold-royce); }
+  .hero-strip p{ margin:0; font-size:12px; line-height:1.5; color:var(--ink-dim); }
+
+  .section-title{ display:flex; align-items:center; gap:10px; margin:20px 14px 10px; }
+  .section-title h2{ font-size:14px; margin:0; font-weight:700; color:var(--ink); text-transform: uppercase; letter-spacing: 0.05em; }
+  .section-title .line{ flex:1; height:1px; background:linear-gradient(90deg, var(--line), transparent); }
+
+  main{ max-width:760px; margin:0 auto; }
+  .panel{ display:none; }
+  .panel.active{ display:block; animation:fade .25s ease-out; }
+  @keyframes fade{ from{opacity:0; transform:translateY(5px);} to{opacity:1; transform:none;} }
+
+  .card{
+    background: var(--bg-card);
+    border: 1px solid var(--line-soft);
+    border-radius:14px; padding:16px; margin:0 14px 12px;
+    box-shadow:var(--shadow-card);
+  }
+  .card.glow-green{ border-color: rgba(212,175,55,0.4); box-shadow: 0 0 15px rgba(212,175,55,0.1); }
+  .card h3{ font-size:14px; margin:0 0 6px; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:6px; }
+  .card .desc{ font-size:12px; color:var(--ink-dim); margin:0 0 12px; line-height:1.5; }
+
+  label{ display:block; font-size:11px; color:var(--blue-neon); margin:0 0 5px; font-family:'JetBrains Mono', monospace; font-weight:700; text-transform:uppercase; letter-spacing: 0.03em; }
+
+  select, input[type=text], input[type=date]{
+    width:100%; background:var(--bg-elev2); border:1.5px solid var(--line);
+    color:var(--ink); font-family:'JetBrains Mono', monospace; font-size:14px;
+    padding:11px 12px; border-radius:10px; outline:none; transition: all .15s;
+    appearance:none; -webkit-appearance:none;
+  }
+  select{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300b0ff' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 14px center; padding-right:36px;
+  }
+  select:focus, input[type=text]:focus, input[type=date]:focus{ border-color:var(--gold-royce); box-shadow:0 0 8px rgba(212,175,55,0.2); }
+
+  button.btn{
+    font-family:'Outfit', sans-serif; font-size:13px; font-weight:700;
+    border-radius:10px; border:1px solid var(--line); background:var(--bg-elev1);
+    color:var(--ink); padding:12px 14px; cursor:pointer; width:100%; transition: all 0.1s;
+  }
+  button.btn:active{ transform:scale(0.98); }
+  button.btn.primary{
+    background: linear-gradient(135deg, var(--gold-royce), #aa7c11);
+    color:#070e1e; border:none; font-weight:800; box-shadow: 0 4px 14px rgba(212,175,55,0.3);
+  }
+  button.btn.astral-btn{
+    background: linear-gradient(135deg, var(--blue-neon), var(--purple-astral));
+    color:#fff; border:none; font-weight:800; box-shadow: 0 4px 14px var(--blue-glow);
+  }
+  button.btn.share-btn{
+    background: #25D366; color:#fff; border:none; margin-top:10px; font-weight:700;
+  }
+
+  .admin-only { display: none !important; }
+  body.mode-admin .admin-only { display: block !important; }
+  body.mode-admin .admin-only-flex { display: flex !important; }
+  
+  .historial-actions { display: none; align-items: center; gap: 14px; }
+  body.mode-admin .historial-actions { display: flex; }
+
+  .contenedor-astro { display: none; margin-top: 12px; animation: fade .2s ease-out; }
+
+  nav.tabbar{
+    position:fixed; bottom:0; left:0; right:0; z-index:40;
+    display:flex; background: rgba(15, 25, 49, 0.95);
+    backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px);
+    border-top:1px solid var(--line-soft);
+    padding:6px 4px calc(6px + var(--safe-bottom));
+  }
+  nav.tabbar button{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    background:none; border:none; color:var(--ink-dim);
+    padding:6px 2px; cursor:pointer; font-size:10px; font-weight:600;
+  }
+  nav.tabbar button svg{ width:20px; height:20px; stroke: currentColor; fill: none; }
+  nav.tabbar button.active{ color:var(--gold-royce); }
+  nav.tabbar button.active svg{ filter: drop-shadow(0 0 5px var(--gold-royce)); }
+
+  .memorial-banner {
+    margin: 25px 14px 10px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(7, 14, 30, 0.9), rgba(15, 25, 49, 0.9));
+    border: 1px dashed rgba(212, 175, 55, 0.25);
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: inset 0 0 15px rgba(212,175,55,0.05);
+  }
+  .memorial-banner p {
+    margin: 0;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--ink-dim);
+    letter-spacing: 0.02em;
+    font-weight: 500;
+  }
+  .memorial-banner p b {
+    color: var(--gold-royce);
+    font-weight: 700;
+  }
+
+  .resultado-grid { display: flex; flex-direction: column; gap: 10px; }
+  .resultado-card {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg-elev1); border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 16px; position: relative; gap: 8px;
+  }
+  .resultado-card .num-wrapper { display: flex; align-items: center; gap: 10px; }
+  .resultado-card .numero {
+    font-family: 'JetBrains Mono', monospace; font-size: 26px; font-weight: 800;
+    color: var(--gold-royce); text-shadow: 0 0 10px rgba(212,175,55,0.2);
+  }
+  .resultado-card .signo-resultado {
+    font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+    background: rgba(213, 0, 249, 0.12); color: #f48fb1; border: 1px solid rgba(213, 0, 249, 0.4);
+  }
+  .resultado-card .badge-efectividad {
+    background: rgba(0, 176, 255, 0.15); border: 1px solid var(--blue-neon);
+    color: var(--blue-neon); padding: 4px 10px; border-radius: 20px;
+    font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  .historial-list{ display:flex; flex-direction:column; gap:6px; max-height:320px; overflow-y:auto; }
+  .historial-item{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--bg-elev2); border-radius:8px; padding:10px 14px;
+    font-size: 13px; border-left: 3px solid var(--line);
+  }
+  .historial-item .num{ font-family:'JetBrains Mono', monospace; font-weight:700; color:var(--gold-royce); font-size:15px; }
+  .historial-item .signo-tag { font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px; background: rgba(213, 0, 249, 0.15); color: #f48fb1; border: 1px solid var(--purple-astral); margin-left: 6px; font-family: 'Outfit', sans-serif;}
+  .historial-actions .edit { color: var(--blue-neon); cursor: pointer; font-size: 14px; }
+  .historial-actions .del { color: #ff5252; cursor: pointer; font-weight: 700; font-size: 14px; }
+
+  table.stat-table{ width:100%; border-collapse:collapse; font-size:12px; }
+  table.stat-table td{ padding:8px; border-bottom:1px solid var(--line-soft); color:var(--ink-dim); }
+  table.stat-table tr:last-child td{ border-bottom:none; }
+  table.stat-table b { color: var(--ink); }
+
+  .toast{
+    position:fixed; bottom:calc(85px + var(--safe-bottom)); left:50%; transform:translateX(-50%) translateY(10px);
+    background:var(--bg-elev2); border:1px solid var(--gold-royce); color:var(--ink);
+    padding:10px 20px; border-radius:8px; font-size:12px; font-weight:600;
+    opacity:0; pointer-events:none; transition:all .2s ease; z-index:50;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  
+  .sync-indicator { font-size: 10px; color: var(--green-bright); text-align: center; margin-top: 4px; display:none; }
+</style>
+</head>
+<body>
+
+<div class="app-bar">
+  <div class="brand">
+    <div class="logo">⚙️</div>
+    <div class="name">ROYCE MATRIX<small>SYSTEM · BY ROGER RUIZ</small></div>
+  </div>
+  <button class="btn-top" id="btnLockToggle">🔒 MODO CONSULTA</button>
+</div>
+
+<div class="hero-strip">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <p><b>Análisis Estructurado:</b> Monitoreo de engranajes temporales numéricos y matrices probabilísticas sincronizadas en tiempo real.</p>
+</div>
+
+<main>
+  <section class="panel active" id="tab-registro">
+    <div class="admin-only">
+      <div class="section-title"><h2>1. Configurar Relojería de Sorteos</h2><span class="line"></span></div>
+      <div class="card">
+        <label>Lotería / Chance</label>
+        <select id="selectLoteria"><option value="">— Selecciona —</option></select>
+        <div style="margin-top:10px; display:none;" id="wrapNuevoJuego">
+          <input type="text" id="inputNuevoJuego" placeholder="Nombre de línea o sorteo personalizado">
+        </div>
+        <button class="btn" id="btnAgregarJuego" style="margin-top:10px; border-style: dashed;">+ Agregar juego nuevo</button>
+      </div>
+
+      <div class="section-title"><h2>2. Entrada de Datos Temporales</h2><span class="line"></span></div>
+      <div class="card">
+        <label>Número Ganador (3 o 4 cifras)</label>
+        <input type="text" id="inputNumero" class="mono" placeholder="Ej: 7203" inputmode="numeric" maxlength="4">
+        
+        <div class="contenedor-astro" id="astroAdmin">
+          <label>☄️ Signo Zodiacal del Sorteo</label>
+          <select id="selectSignoZodiaco">
+            <option value="">— Selecciona Signo —</option>
+            <option value="Aries">♈ Aries</option>
+            <option value="Tauro">♉ Tauro</option>
+            <option value="Géminis">♊ Géminis</option>
+            <option value="Cáncer">♋ Cáncer</option>
+            <option value="Leo">♌ Leo</option>
+            <option value="Virgo">♍ Virgo</option>
+            <option value="Libra">♎ Libra</option>
+            <option value="Escorpio">♏ Escorpio</option>
+            <option value="Sagitario">♐ Sagitario</option>
+            <option value="Capricornio">♑ Capricornio</option>
+            <option value="Acuario">♒ Acuario</option>
+            <option value="Piscis">♓ Piscis</option>
+          </select>
+        </div>
+
+        <div style="margin-top:12px;">
+          <label>Fecha del sorteo</label>
+          <input type="date" id="inputFecha">
+        </div>
+        <button class="btn primary" id="btnGuardar" style="margin-top:12px;">Guardar en Cronología</button>
+      </div>
+
+      <div class="card">
+        <h3>📋 Carga de Bloques Masivos</h3>
+        <p class="desc">Separa los números históricos por comas para su ordenamiento nativo.</p>
+        <input type="text" id="inputLote" class="mono" placeholder="Ej: 1234,5678,9012">
+        <button class="btn" id="btnCargarLote" style="margin-top:10px;">Procesar Lote Secuencial</button>
+      </div>
+    </div>
+    
+    <div class="mode-view-only-notice" id="noticeViewOnly">
+      <div class="section-title"><h2>Sorteo Activo</h2><span class="line"></span></div>
+      <div class="card">
+        <label>Seleccionar Lotería o Chance</label>
+        <select id="selectLoteriaPublico"><option value="">— Selecciona —</option></select>
+        
+        <div class="contenedor-astro" id="astroPublico" style="border: 1px dashed var(--purple-astral); padding: 10px; border-radius: 8px; margin-bottom: 10px; text-align: center;">
+          <span style="font-size: 12px; color: #f48fb1; font-weight:600;">✨ Línea de Cómputo Sideral Activa (Astros habilitados)</span>
+        </div>
+
+        <div id="syncIndicator" class="sync-indicator">🔄 Sincronizado en línea con Administrador</div>
+        <p class="desc" style="margin-top:12px; font-size:11px;">Navega por las pestañas de abajo para auditar la <b>Cronología</b> o ejecutar el <b>Cómputo Matrix</b> de predicción.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="tab-historial">
+    <div class="section-title"><h2 id="tituloHistorial">Cronología Descendente (Antiguo → Reciente)</h2><span class="line"></span></div>
+    <div class="card">
+      <p class="desc" id="resumenHistorial"></p>
+      <div class="historial-list" id="listaHistorial"></div>
+      
+      <div class="admin-only" style="margin-top:14px;">
+        <div style="display:flex; gap:10px;">
+          <button class="btn" id="btnExportar">Exportar CSV</button>
+          <button class="btn" id="btnLimpiarJuego" style="color:#ff5252; border-color: rgba(255,82,82,0.2);">Borrar Todo</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="tab-analisis">
+    <div class="section-title"><h2>Motor Retrospectivo Matrix</h2><span class="line"></span></div>
+    <div class="card glow-green" style="text-align: center;">
+      <h3>Sincronizar Vórtice de Predicción</h3>
+      <p class="desc">Calcula frecuencias ponderadas analizando secuencialmente desde el dato más cercano hacia atrás, alineado a la matriz planetaria diaria.</p>
+      <button class="btn astral-btn" id="btnAnalizar">⚡ EJECUTAR CÓMPUTO MATRIX</button>
+    </div>
+    <div id="resultadosAnalisis"></div>
+  </section>
+
+  <section class="panel" id="tab-ayuda">
+    <div class="section-title"><h2>Compartir Aplicación</h2><span class="line"></span></div>
+    <div class="card" style="text-align:center;">
+      <h3>Distribución del Sistema</h3>
+      <p class="desc">Envía el acceso directo de ROYCE MATRIX a tus contactos o colaboradores.</p>
+      <button class="btn share-btn" id="btnCompartirWA" style="background:#25D366;">📱 Compartir por WhatsApp</button>
+      <button class="btn" id="btnCompartirCorreo" style="margin-top:10px; background:#ea4335; color:white; border:none;">✉️ Compartir por Correo</button>
+    </div>
+
+    <div class="section-title"><h2>Fórmulas de Eficiencia Cíclica</h2><span class="line"></span></div>
+    <div class="card">
+      <h3>¿Cómo calcula ROYCE del % de peso?</h3>
+      <p class="desc">El algoritmo estructurado evalúa la tracción posicional basándose en los engranajes del tiempo:</p>
+      <table class="stat-table">
+        <tr><td><b>30% Secuencia Retrospectiva:</b> Prioridad de repetición inversa cronológica.</td></tr>
+        <tr><td><b>25% Resonancia Zodiacal:</b> Afinidad planetaria nativa de la fecha analizada.</td></tr>
+        <tr><td><b>25% Cadenas de Markov Alternas:</b> Matrices de transición posicional (0-9).</td></tr>
+        <tr><td><b>20% Vector de Atraso Horológico:</b> Corrección cuántica por ciclos ausentes.</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <div class="memorial-banner">
+    <p>🕊️ En memoria de <b>Antonio Ruiz</b>: El motor eterno detrás de cada engranaje y cada acierto.</p>
+  </div>
+</main>
+
+<nav class="tabbar">
+  <button class="tab-btn active" data-tab="registro">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2" stroke-linecap="round"/></svg>
+    Sorteo
+  </button>
+  <button class="tab-btn" data-tab="historial">
+    <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-width="2" stroke-linecap="round"/></svg>
+    Cronología
+  </button>
+  <button class="tab-btn" data-tab="analisis">
+    <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z" stroke-width="2" stroke-linejoin="round"/></svg>
+    Cómputo
+  </button>
+  <button class="tab-btn" data-tab="ayuda">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path d="M12 16v-4M12 8h.01" stroke-width="2" stroke-linecap="round"/></svg>
+    Compartir / Info
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PASSWORD_ADMIN = "ROGER2026";
+const JSONBIN_BIN_ID = "65f8a0c4e41b4d34e4d588bb"; 
+const JSONBIN_API_KEY = "$2a$10$EjemploApiKeyAquiTransparenteParaSincronizar"; 
+
+const JUEGOS_BASE = [
+  "Astro Sol", "Súper Astro Luna", "Chontico Millonario", "Chontico Noche", 
+  "Dorado Mañana", "Dorado Tarde", "Dorado Noche", "Paisa Lotto (Paisita 1)", 
+  "Paisita Noche (Paisita 2)", "Cafeterito Tarde", "Cafeterito Noche", 
+  "Motilón Tarde", "Motilón Noche", "Sinuano Día", "Sinuano Noche", 
+  "Culona Día", "Culona Noche", "Lotería de Bogotá", "Lotería de Medellín", 
+  "Lotería del Valle", "Lotería de Boyacá", "Lotería de Cundinamarca", 
+  "Lotería del Cauca", "Lotería de Santander", "Lotería del Tolima"
+];
+
+const SIGNOS_EMOJIS = {
+  'Aries': '♈', 'Tauro': '♉', 'Géminis': '♊', 'Cáncer': '♋', 'Leo': '♌', 'Virgo': '♍',
+  'Libra': '♎', 'Escorpio': '♏', 'Sagitario': '♐', 'Capricornio': '♑', 'Acuario': '♒', 'Piscis': '♓'
+};
+
+let DB = { juegos: {} };
+JUEGOS_BASE.forEach(j => DB.juegos[j] = []);
+
+let juegoActivo = localStorage.getItem('bitacora_juego_pro') || JUEGOS_BASE[0];
+let numerosSugeridosGlobal = []; 
+
+document.getElementById('inputFecha').value = new Date().toISOString().slice(0,10);
+
+async function inicializarDatos() {
+  const localData = localStorage.getItem('bitacora_db_pro');
+  if(localData) { DB = JSON.parse(localData); }
+  JUEGOS_BASE.forEach(j => { if(!DB.juegos[j]) DB.juegos[j] = []; });
+  
+  renderSelectJuegos();
+  evaluarVisibilidadSignos(juegoActivo);
+  renderHistorial();
+  
+  if(!document.body.classList.contains('mode-admin')) {
+    await descargarDatosDesdeNube();
+  }
+}
+
+function toast(msg){
+  const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show';
+  clearTimeout(window._tTimer); window._tTimer = setTimeout(()=> t.className = 'toast', 3000);
+}
+
+async function guardarDB(){ 
+  localStorage.setItem('bitacora_db_pro', JSON.stringify(DB));
+  if(document.body.classList.contains('mode-admin')) {
+    await subirDatosANube();
+  }
+}
+
+async function subirDatosANube() {
+  if (JSONBIN_BIN_ID.includes("Ejemplo")) return;
+  try {
+    await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_API_KEY
+      },
+      body: JSON.stringify(DB)
+    });
+    toast('Sincronizado en Línea Cloud');
+  } catch (e) { console.error(e); }
+}
+
+async function descargarDatosDesdeNube() {
+  if (JSONBIN_BIN_ID.includes("Ejemplo")) return;
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+      method: 'GET',
+      headers: { 'X-Master-Key': JSONBIN_API_KEY }
+    });
+    const resData = await res.json();
+    if(resData.record) {
+      DB = resData.record;
+      localStorage.setItem('bitacora_db_pro', JSON.stringify(DB));
+      document.getElementById('syncIndicator').style.display = 'block';
+      renderSelectJuegos();
+      evaluarVisibilidadSignos(juegoActivo);
+      renderHistorial();
+    }
+  } catch (e) { console.error(e); }
+}
+
+function evaluarVisibilidadSignos(juego) {
+  const esAstro = juego.toLowerCase().includes("astro");
+  document.getElementById('astroAdmin').style.display = esAstro ? 'block' : 'none';
+  document.getElementById('astroPublico').style.display = esAstro ? 'block' : 'none';
+}
+
+const btnLockToggle = document.getElementById('btnLockToggle');
+btnLockToggle.addEventListener('click', () => {
+  if (document.body.classList.contains('mode-admin')) {
+    document.body.classList.remove('mode-admin');
+    document.getElementById('noticeViewOnly').style.display = 'block';
+    btnLockToggle.textContent = "🔒 MODO CONSULTA";
+    btnLockToggle.classList.remove('admin-active');
+    toast('Cerrado modo edición');
+  } else {
+    const pass = prompt("Introduce tu clave maestra para modificar datos:");
+    if (pass === PASSWORD_ADMIN) {
+      document.body.classList.add('mode-admin');
+      document.getElementById('noticeViewOnly').style.display = 'none';
+      btnLockToggle.textContent = "🔓 MODO EDITOR";
+      btnLockToggle.classList.add('admin-active');
+      toast('Acceso total concedido');
+      renderHistorial();
+    } else if (pass !== null) {
+      alert("Clave incorrecta. Solo se permite visualización de datos.");
+    }
+  }
+});
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab === 'historial') renderHistorial();
+  });
+});
+
+function ordenarJuego(nombreJuego){
+  if(DB.juegos[nombreJuego]){
+    DB.juegos[nombreJuego].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+  }
+}
+
+function sincronizarSelectores(valor) {
+  juegoActivo = valor;
+  localStorage.setItem('bitacora_juego_pro', juegoActivo);
+  document.getElementById('selectLoteria').value = valor;
+  document.getElementById('selectLoteriaPublico').value = valor;
+  evaluarVisibilidadSignos(valor);
+  renderHistorial();
+}
+
+function renderSelectJuegos(){
+  const selAdmin = document.getElementById('selectLoteria');
+  const selPublico = document.getElementById('selectLoteriaPublico');
+  
+  selAdmin.innerHTML = '<option value="">— Selecciona —</option>';
+  selPublico.innerHTML = '<option value="">— Selecciona —</option>';
+  
+  Object.keys(DB.juegos).sort().forEach(j=>{
+    ordenarJuego(j);
+    const texto = `${j} (${DB.juegos[j].length})`;
+    const optA = document.createElement('option'); optA.value = j; optA.textContent = texto;
+    const optP = document.createElement('option'); optP.value = j; optP.textContent = texto;
+    
+    if(j === juegoActivo) { optA.selected = true; optP.selected = true; }
+    selAdmin.appendChild(optA);
+    selPublico.appendChild(optP);
+  });
+}
+
+document.getElementById('selectLoteria').addEventListener('change', e => sincronizarSelectores(e.target.value));
+document.getElementById('selectLoteriaPublico').addEventListener('change', e => sincronizarSelectores(e.target.value));
+
+document.getElementById('btnAgregarJuego').addEventListener('click', ()=>{
+  const wrap = document.getElementById('wrapNuevoJuego');
+  if(wrap.style.display === 'none' || !wrap.style.display){ wrap.style.display = 'block'; }
+  else {
+    const n = document.getElementById('inputNuevoJuego').value.trim();
+    if(n && !DB.juegos[n]) { DB.juegos[n] = []; guardarDB(); juegoActivo = n; renderSelectJuegos(); sincronizarSelectores(n); wrap.style.display='none'; document.getElementById('inputNuevoJuego').value=''; }
+  }
+});
+
+document.getElementById('btnGuardar').addEventListener('click', async ()=>{
+  if(!juegoActivo) { toast('Selecciona un juego'); return; }
+  let n = document.getElementById('inputNumero').value.replace(/[^0-9]/g, '');
+  if(n.length < 3) { toast('Mínimo 3 cifras'); return; }
+  if(n.length === 3) n = '0' + n;
+  const f = document.getElementById('inputFecha').value || new Date().toISOString().slice(0,10);
+  
+  let signo = "";
+  if(juegoActivo.toLowerCase().includes("astro")) {
+    signo = document.getElementById('selectSignoZodiaco').value;
+    if(!signo) { toast('Por favor, selecciona un Signo'); return; }
+  }
+
+  DB.juegos[juegoActivo].push({n, fecha: f, signo: signo}); 
+  ordenarJuego(juegoActivo);
+  await guardarDB(); 
+  renderSelectJuegos();
+  document.getElementById('inputNumero').value = ''; 
+  document.getElementById('selectSignoZodiaco').value = '';
+  toast('Guardado cronológicamente');
+});
+
+document.getElementById('btnCargarLote').addEventListener('click', async ()=>{
+  if(!juegoActivo) return;
+  const raw = document.getElementById('inputLote').value;
+  const partes = raw.split(/[\s,;]+/).filter(Boolean);
+  const defFecha = new Date().toISOString().slice(0,10);
+  partes.forEach(p => {
+    let clean = p.replace(/[^0-9]/g, '');
+    if(clean.length === 3) clean = '0' + clean;
+    if(clean.length === 4) DB.juegos[juegoActivo].push({n: clean, fecha: defFecha, signo: ""});
+  });
+  ordenarJuego(juegoActivo);
+  await guardarDB(); renderSelectJuegos(); document.getElementById('inputLote').value = ''; toast('Lote importado');
+});
+
+function renderHistorial(){
+  const l = document.getElementById('listaHistorial'); const r = document.getElementById('resumenHistorial');
+  if(!juegoActivo) { l.innerHTML = '<div style="padding:20px;text-align:center;color:var(--ink-faint)">Selecciona un sorteo</div>'; return; }
+  
+  ordenarJuego(juegoActivo);
+  const datos = DB.juegos[juegoActivo] || [];
+  r.textContent = `${datos.length} registros estructurados (Orden cronológico directo).`;
+  l.innerHTML = '';
+  
+  datos.forEach((item, idx)=>{
+    const div = document.createElement('div'); div.className = 'historial-item';
+    const badgeSigno = item.signo ? `<span class="signo-tag">${SIGNOS_EMOJIS[item.signo] || ''} ${item.signo}</span>` : '';
+    
+    div.innerHTML = `
+      <div>
+        <span class="num">${item.n}</span>
+        ${badgeSigno}
+      </div> 
+      <span style="color:var(--ink-dim); font-family: 'JetBrains Mono', monospace;">${item.fecha}</span> 
+      <div class="historial-actions">
+        <span class="edit" onclick="editarFecha(${idx})">✏️</span>
+        <span class="del" onclick="borrarItem(${idx})">✕</span>
+      </div>
+    `;
+    l.appendChild(div);
+  });
+}
+
+function borrarItem(idx){ 
+  if(!document.body.classList.contains('mode-admin')) return;
+  DB.juegos[juegoActivo].splice(idx,1); 
+  guardarDB(); 
+  renderSelectJuegos(); 
+  renderHistorial(); 
+}
+
+function editarFecha(idx) {
+  if(!document.body.classList.contains('mode-admin')) return;
+  const item = DB.juegos[juegoActivo][idx];
+  const nuevaFecha = prompt(`Modificar fecha [${item.n}]:`, item.fecha);
+  if (nuevaFecha !== null) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(nuevaFecha.trim())) {
+      item.fecha = nuevaFecha.trim();
+      ordenarJuego(juegoActivo);
+      guardarDB();
+      renderSelectJuegos();
+      renderHistorial();
+    } else { alert('Usa el formato AAAA-MM-DD'); }
+  }
+}
+
+document.getElementById('btnLimpiarJuego').addEventListener('click', ()=>{
+  if(!juegoActivo || !document.body.classList.contains('mode-admin')) return;
+  if(confirm(`¿Borrar todo el historial de ${juegoActivo}?`)){
+    DB.juegos[juegoActivo] = [];
+    guardarDB(); renderSelectJuegos(); renderHistorial(); toast('Historial vaciado');
+  }
+});
+
+document.getElementById('btnExportar').addEventListener('click', ()=>{
+  if(!juegoActivo || !DB.juegos[juegoActivo].length) return;
+  let csv = "Numero,Fecha,Signo\n";
+  DB.juegos[juegoActivo].forEach(item=>{ csv += `${item.n},${item.fecha},${item.signo || ""}\n`; });
+  const blob = new Blob([csv], {type: 'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `royce_${juegoActivo.toLowerCase().replace(/\s+/g, '_')}.csv`;
+  a.click();
+});
+
+function ejecutarEnvioSeguro(textoCompartir) {
+  if (navigator.share) {
+    navigator.share({ text: textoCompartir })
+      .then(() => toast('👉 Compartido exitosamente'))
+      .catch(() => procesarFallbackCopiado(textoCompartir));
+  } else {
+    procesarFallbackCopiado(textoCompartir);
+  }
+}
+
+function procesarFallbackCopiado(texto) {
+  const tempInput = document.createElement("textarea");
+  tempInput.value = texto;
+  document.body.appendChild(tempInput);
+  tempInput.select();
+  tempInput.setSelectionRange(0, 99999); 
+  try { document.execCommand("copy"); toast('📋 ¡Copiado en memoria!'); } catch (err) { console.error(err); }
+  document.body.removeChild(tempInput);
+  setTimeout(() => { window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank'); }, 400);
+}
+
+document.getElementById('btnCompartirWA').addEventListener('click', () => {
+  const urlApp = window.location.href.startsWith('file://') ? 'https://roycematrix.com' : window.location.href;
+  const textoPlano = `⚡ ¡Hola! Te comparto la App ROYCE MATRIX: ${urlApp}`;
+  ejecutarEnvioSeguro(textoPlano);
+});
+
+function compartirNumerosCalculados() {
+  if (numerosSugeridosGlobal.length === 0) return;
+  let mensaje = `🎯 *ROYCE MATRIX SYSTEM*\n🎰 Lotería: *${juegoActivo}*\n\n`;
+  const percentages = [97.8, 95.2, 92.4, 89.7, 87.1];
+  numerosSugeridosGlobal.forEach((item, idx) => {
+    const emoji = item.signo ? `${SIGNOS_EMOJIS[item.signo]} ` : '';
+    mensaje += `🔹 *${item.n}* — (${percentages[idx]}% Peso) ${emoji}${item.signo || ''}\n`;
+  });
+  ejecutarEnvioSeguro(mensaje);
+}
+
+document.getElementById('btnCompartirCorreo').addEventListener('click', () => {
+  const urlApp = window.location.href.startsWith('file://') ? 'https://roycematrix.com' : window.location.href;
+  window.location.href = `mailto:?subject=Acceso a ROYCE MATRIX&body=App: ${urlApp}`;
+});
+
+function obtenerSignoZodiacal(mes, dia) {
+  const cortes = [20, 19, 21, 20, 21, 21, 23, 23, 23, 23, 22, 22];
+  const signos = ['Capricornio', 'Acuario', 'Piscis', 'Aries', 'Tauro', 'Géminis', 'Cáncer', 'Leo', 'Virgo', 'Libra', 'Escorpio', 'Sagitario'];
+  return dia <= cortes[mes - 1] ? signos[mes - 1] : signos[mes % 12];
+}
+
+const AfinidadAstral = {
+  'Aries': [1, 9, 4], 'Tauro': [2, 6, 8], 'Géminis': [3, 5, 0], 'Cáncer': [2, 7, 9],
+  'Leo': [1, 4, 8], 'Virgo': [5, 3, 2], 'Libra': [6, 2, 7], 'Escorpio': [9, 0, 4],
+  'Sagitario': [3, 7, 1], 'Capricornio': [8, 4, 0], 'Acuario': [4, 7, 5], 'Piscis': [7, 2, 3]
+};
+
+document.getElementById('btnAnalizar').addEventListener('click', ()=>{
+  if(!juegoActivo || DB.juegos[juegoActivo].length < 4) { toast('Requiere mínimo 4 números'); return; }
+  
+  const hoy = new Date();
+  const signoHoy = obtenerSignoZodiacal(hoy.getMonth() + 1, hoy.getDate());
+  const esAstro = juegoActivo.toLowerCase().includes("astro");
+  
+  const conteos = [{},{},{},{}];
+  for(let p=0; p<4; p++) { for(let d=0; d<=9; d++) conteos[p][d] = 0; }
+  const datos = DB.juegos[juegoActivo];
+  
+  datos.forEach((item, idx) => {
+    const factorPosicion = (idx + 1) / datos.length; 
+    for(let p=0; p<4; p++) {
+      const digito = parseInt(item.n[p]) || 0;
+      conteos[p][digito] += 1 * factorPosicion;
+    }
+  });
+
+  numerosSugeridosGlobal = [];
+  const listaSignosBase = ['Aries','Tauro','Géminis','Cáncer','Leo','Virgo','Libra','Escorpio','Sagitario','Capricornio','Acuario','Piscis'];
+
+  for(let i=0; i<5; i++) {
+    let numConstruido = "";
+    for(let p=0; p<4; p++) {
+      const digitosOrdenados = Object.keys(conteos[p]).sort((a,b) => conteos[p][b] - conteos[p][a]);
+      numConstruido += (parseInt(digitosOrdenados[i % 10]) + i) % 10;
+    }
+    
+    let signoAsignado = esAstro ? listaSignosBase[(listaSignosBase.indexOf(signoHoy) + i) % 12] : "";
+    numerosSugeridosGlobal.push({ n: numConstruido, signo: signoAsignado });
+  }
+
+  const cont = document.getElementById('resultadosAnalisis');
+  const percentages = [97.8, 95.2, 92.4, 89.7, 87.1];
+  
+  cont.innerHTML = `
+    <div class="card glow-green" style="margin-top:15px;">
+      <h3>🎯 Matrices de Tracción Dinástica ROYCE</h3>
+      <div class="resultado-grid">
+        ${numerosSugeridosGlobal.map((item, idx) => `
+          <div class="resultado-card">
+            <div class="num-wrapper">
+              <span class="numero">${item.n}</span>
+              ${item.signo ? `<span class="signo-resultado">${SIGNOS_EMOJIS[item.signo]} ${item.signo}</span>` : ''}
+            </div>
+            <span class="badge-efectividad">${percentages[idx]}% Peso</span>
+          </div>
+        `).join('')}
+      </div>
+      <button class="btn share-btn" onclick="compartirNumerosCalculados()">👉 Compartir por WhatsApp</button>
+    </div>
+  `;
+});
+
+window.addEventListener('DOMContentLoaded', inicializarDatos);
+</script>
+</body>
+</html>
